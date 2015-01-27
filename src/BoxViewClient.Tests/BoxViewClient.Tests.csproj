@@ -4,14 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9DFFCC6C-1DA0-4FE1-86C9-06B3A0786F57}</ProjectGuid>
+    <ProjectGuid>{C71A4FA7-FA82-4BF8-8FFE-669FCA106D0D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BoxViewClient</RootNamespace>
-    <AssemblyName>BoxViewClient</AssemblyName>
+    <RootNamespace>BoxViewClient.Tests</RootNamespace>
+    <AssemblyName>BoxViewClient.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>865bf18e</NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>73119d1c</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -35,11 +36,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Net.Http.Extensions">
       <HintPath>..\packages\Microsoft.Net.Http.2.2.28\lib\net45\System.Net.Http.Extensions.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Net.Http.Primitives">
       <HintPath>..\packages\Microsoft.Net.Http.2.2.28\lib\net45\System.Net.Http.Primitives.dll</HintPath>
@@ -55,18 +60,18 @@
     <Compile Include="..\SharedVersionInfo.cs">
       <Link>Properties\SharedVersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Client.cs" />
-    <Compile Include="CreateSessionRequest.cs" />
-    <Compile Include="DeleteDocumentRequest.cs" />
-    <Compile Include="DeleteSessionRequest.cs" />
-    <Compile Include="GetDocumentRequest.cs" />
-    <Compile Include="GetDocumentsRequest.cs" />
-    <Compile Include="MultipartUploadDocumentRequest.cs" />
+    <Compile Include="IntegrationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UrlUploadDocumentRequest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="file.xls" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BoxViewClient\BoxViewClient.csproj">
+      <Project>{9dffcc6c-1da0-4fe1-86c9-06b3a0786f57}</Project>
+      <Name>BoxViewClient</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />

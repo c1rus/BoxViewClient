@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoxViewClient", "BoxViewClient\BoxViewClient.csproj", "{9DFFCC6C-1DA0-4FE1-86C9-06B3A0786F57}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoxViewClient.Tests", "BoxViewClient.Tests\BoxViewClient.Tests.csproj", "{C71A4FA7-FA82-4BF8-8FFE-669FCA106D0D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{9DFFCC6C-1DA0-4FE1-86C9-06B3A0786F57}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DFFCC6C-1DA0-4FE1-86C9-06B3A0786F57}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DFFCC6C-1DA0-4FE1-86C9-06B3A0786F57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C71A4FA7-FA82-4BF8-8FFE-669FCA106D0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C71A4FA7-FA82-4BF8-8FFE-669FCA106D0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C71A4FA7-FA82-4BF8-8FFE-669FCA106D0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C71A4FA7-FA82-4BF8-8FFE-669FCA106D0D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
