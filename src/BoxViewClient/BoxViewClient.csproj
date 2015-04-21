@@ -55,14 +55,19 @@
     <Compile Include="..\SharedVersionInfo.cs">
       <Link>Properties\SharedVersionInfo.cs</Link>
     </Compile>
+    <Compile Include="BoxViewException.cs" />
+    <Compile Include="BoxViewService.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="CreateSessionRequest.cs" />
     <Compile Include="DeleteDocumentRequest.cs" />
     <Compile Include="DeleteSessionRequest.cs" />
     <Compile Include="GetDocumentRequest.cs" />
+    <Compile Include="Document.cs" />
+    <Compile Include="GetDocumentsResponse.cs" />
     <Compile Include="GetDocumentsRequest.cs" />
     <Compile Include="MultipartUploadDocumentRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Session.cs" />
     <Compile Include="UrlUploadDocumentRequest.cs" />
   </ItemGroup>
   <ItemGroup>

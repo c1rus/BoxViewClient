@@ -39,26 +39,7 @@ namespace BoxViewClient.Tests
             var response = await _client.GetDocumentsAsync(new GetDocumentsRequest{ Limit = 50});
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
             var content = await response.Content.ReadAsStringAsync();
-            var actual = JsonConvert.DeserializeAnonymousType(
-                content,
-                new
-                {
-                    document_collection = new
-                    {
-                        total_count = 0,
-                        entries = new []
-                        {
-                            new
-                            {
-                                type = "",
-                                id = "",
-                                status = "",
-                                name = "",
-                                created_at = ""
-                            }
-                        }
-                    }
-                });
+            var actual = JsonConvert.DeserializeObject<GetDocumentsResponse>(content);
         }
 
         [Test]
@@ -71,29 +52,18 @@ namespace BoxViewClient.Tests
                     Name = RandomDocumentName
                 }));
             Assert.That(uploadResponse.StatusCode, Is.EqualTo(HttpStatusCode.Accepted));
-            var documentId = JsonConvert.DeserializeAnonymousType(await uploadResponse.Content.ReadAsStringAsync(),
-                new
-                {
-                    id = ""
-                }).id;
-            var response = await _client.GetDocumentAsync(new GetDocumentRequest { DocumentId = documentId });
-            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "GetDocument " + documentId + "failed.");
+            var document = JsonConvert.DeserializeObject<Document>(await uploadResponse.Content.ReadAsStringAsync());
+
+            var response = await _client.GetDocumentAsync(new GetDocumentRequest { DocumentId = document.Id });
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "GetDocument " + document.Id + "failed.");
             var content = await response.Content.ReadAsStringAsync();
-            var actual = JsonConvert.DeserializeAnonymousType(
-                content,
-                new
-                {
-                    type = "",
-                    id = "",
-                    status = "",
-                    name = "",
-                    created_at = ""
-                });
-            Assert.That(actual.id, Has.Length.EqualTo(32));
-            Assert.That(actual.type, Is.EqualTo("document"));
-            Assert.That(actual.status, Is.EqualTo("queued").Or.EqualTo("processing").Or.EqualTo("done"));
-            Assert.That(actual.name, Is.EqualTo(RandomDocumentName));
-            Assert.That(actual.created_at, Is.Not.Empty);
+            var actual = JsonConvert.DeserializeObject<Document>(content);
+
+            Assert.That(actual.Id, Has.Length.EqualTo(32));
+            Assert.That(actual.Type, Is.EqualTo("document"));
+            Assert.That(actual.StatusText, Is.EqualTo("queued").Or.EqualTo("processing").Or.EqualTo("done"));
+            Assert.That(actual.Name, Is.EqualTo(RandomDocumentName));
+            Assert.That(actual.CreatedAt, Is.Not.EqualTo(DateTime.MinValue));
         }
 
         [Test]
@@ -109,21 +79,12 @@ namespace BoxViewClient.Tests
                 });
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Accepted));
             var content = await response.Content.ReadAsStringAsync();
-            var actual = JsonConvert.DeserializeAnonymousType(
-                content,
-                new
-                {
-                    type = "",
-                    id = "",
-                    status = "",
-                    name = "",
-                    created_at = ""
-                });
-            Assert.That(actual.id, Has.Length.EqualTo(32));
-            Assert.That(actual.type, Is.EqualTo("document"));
-            Assert.That(actual.status, Is.EqualTo("queued"));
-            Assert.That(actual.name, Is.EqualTo(RandomDocumentName));
-            Assert.That(actual.created_at, Is.Not.Empty);
+            var actual = JsonConvert.DeserializeObject<Document>(content);
+            Assert.That(actual.Id, Has.Length.EqualTo(32));
+            Assert.That(actual.Type, Is.EqualTo("document"));
+            Assert.That(actual.StatusText, Is.EqualTo("queued"));
+            Assert.That(actual.Name, Is.EqualTo(RandomDocumentName));
+            Assert.That(actual.CreatedAt, Is.Not.EqualTo(DateTime.MinValue));
         }
 
         [Test]
@@ -144,40 +105,31 @@ namespace BoxViewClient.Tests
                         Thumbnails = "128x128"
                     });
                 Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Accepted));
-                var actual = JsonConvert.DeserializeAnonymousType(
-                    await response.Content.ReadAsStringAsync(),
-                    new
-                    {
-                        type = "",
-                        id = "",
-                        status = "",
-                        name = "",
-                        created_at = ""
-                    });
-                Assert.That(actual.id, Has.Length.EqualTo(32));
-                Assert.That(actual.type, Is.EqualTo("document"));
-                Assert.That(actual.status, Is.EqualTo("queued"));
-                Assert.That(actual.name, Is.EqualTo(RandomDocumentName));
-                Assert.That(actual.created_at, Is.Not.Empty);
+
+                var content = await response.Content.ReadAsStringAsync();
+                var actual = JsonConvert.DeserializeObject<Document>(content);
+
+                Assert.That(actual.Id, Has.Length.EqualTo(32));
+                Assert.That(actual.Type, Is.EqualTo("document"));
+                Assert.That(actual.StatusText, Is.EqualTo("queued"));
+                Assert.That(actual.Name, Is.EqualTo(RandomDocumentName));
+                Assert.That(actual.CreatedAt, Is.Not.EqualTo(DateTime.MinValue));
             }
         }
 
         [Test]
         public async void DeleteExistingDocument()
         {
-            var documentId = JsonConvert.DeserializeAnonymousType(
+            var document = JsonConvert.DeserializeObject<Document>(
                 await (
                     await _client.UploadDocumentAsync(
                         new UrlUploadDocumentRequest
                         {
                             Url = new Uri("http://crypto.stanford.edu/DRM2002/darknet5.doc"),
                             Name = RandomDocumentName
-                        })).Content.ReadAsStringAsync(),
-                new
-                {
-                    id = ""
-                }).id;
-            var response = await _client.DeleteDocumentAsync(new DeleteDocumentRequest {DocumentId = documentId});
+                        })).Content.ReadAsStringAsync());
+
+            var response = await _client.DeleteDocumentAsync(new DeleteDocumentRequest { DocumentId = document.Id});
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
         }
 
@@ -201,21 +153,18 @@ namespace BoxViewClient.Tests
         [Test]
         public async void CreateSessionForQueuedExistingDocument()
         {
-            var documentId = JsonConvert.DeserializeAnonymousType(
+            var document = JsonConvert.DeserializeObject<Document>(
                 await (
                     await _client.UploadDocumentAsync(
                         new UrlUploadDocumentRequest
                         {
                             Url = new Uri("http://crypto.stanford.edu/DRM2002/darknet5.doc"),
                             Name = RandomDocumentName
-                        })).Content.ReadAsStringAsync(),
-                new
-                {
-                    id = ""
-                }).id;
+                        })).Content.ReadAsStringAsync());
+
             var response = await _client.CreateSessionAsync(new CreateSessionRequest
             {
-                DocumentId = documentId
+                DocumentId = document.Id
             });
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Accepted));
         }
@@ -223,98 +172,86 @@ namespace BoxViewClient.Tests
         [Test]
         public async void CreateSessionForExistingProcessedDocument()
         {
-            var documentId = JsonConvert.DeserializeAnonymousType(
+            var document = JsonConvert.DeserializeObject<Document>(
                 await (
                     await _client.UploadDocumentAsync(
                         new UrlUploadDocumentRequest
                         {
                             Url = new Uri("http://crypto.stanford.edu/DRM2002/darknet5.doc"),
                             Name = RandomDocumentName
-                        })).Content.ReadAsStringAsync(),
-                new
-                {
-                    id = ""
-                }).id;
+                        })).Content.ReadAsStringAsync());
 
             //wait for it
-            while (JsonConvert.DeserializeAnonymousType(
+            while (JsonConvert.DeserializeObject<Document>(
                 await (
                     await _client.GetDocumentAsync(
                         new GetDocumentRequest
                         {
-                            DocumentId = documentId
-                        })).Content.ReadAsStringAsync(),
-                new
-                {
-                    status = ""
-                }).status != "done")
+                            DocumentId = document.Id
+                        })).Content.ReadAsStringAsync()).Status != DocumentStatus.Done)
             {
                 await Task.Delay(TimeSpan.FromSeconds(1));
             }
 
             var response = await _client.CreateSessionAsync(new CreateSessionRequest
             {
-                DocumentId = documentId
+                DocumentId = document.Id
             });
+
+            string content = await response.Content.ReadAsStringAsync();
+
+            var session = JsonConvert.DeserializeObject<Session>(content);
+
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Created));
+            Assert.That(session.Type, Is.EqualTo("session"));
+            Assert.That(session.Id, Is.Not.Null);
+            Assert.That(session.ExpiresAt, Is.Not.EqualTo(DateTime.MinValue));
         }
 
         [Test]
         public async void DeleteExistingSession()
         {
-            var documentId = JsonConvert.DeserializeAnonymousType(
+            var document = JsonConvert.DeserializeObject<Document>(
                await (
                    await _client.UploadDocumentAsync(
                        new UrlUploadDocumentRequest
                        {
                            Url = new Uri("http://crypto.stanford.edu/DRM2002/darknet5.doc"),
                            Name = RandomDocumentName
-                       })).Content.ReadAsStringAsync(),
-               new
-               {
-                   id = ""
-               }).id;
+                       })).Content.ReadAsStringAsync());
 
             //wait for it
             var intermediateResponse = (
                 await _client.GetDocumentAsync(
                     new GetDocumentRequest
                     {
-                        DocumentId = documentId
+                        DocumentId = document.Id
                     }));
+
             var content = await intermediateResponse.Content.ReadAsStringAsync();
             Console.WriteLine(content);
-            while (JsonConvert.DeserializeAnonymousType(
-                content,
-                new
-                {
-                    status = ""
-                }).status != "done")
+
+            while (JsonConvert.DeserializeObject<Document>(content).Status != DocumentStatus.Done)
             {
                 await Task.Delay(TimeSpan.FromSeconds(1));
                 intermediateResponse = (
                 await _client.GetDocumentAsync(
                     new GetDocumentRequest
                     {
-                        DocumentId = documentId
+                        DocumentId = document.Id
                     }));
                 content = await intermediateResponse.Content.ReadAsStringAsync();
                 Console.WriteLine(content);
             }
 
             //grab session
-            var sessionId = JsonConvert.DeserializeAnonymousType(
+            var session = JsonConvert.DeserializeObject<Session>(
                 await (await _client.CreateSessionAsync(new CreateSessionRequest
                 {
-                    DocumentId = documentId
-                })).Content.ReadAsStringAsync(),
-                new
-                {
-                    id = ""
-                
-                }).id;
+                    DocumentId = document.Id
+                })).Content.ReadAsStringAsync());
 
-            var response = await _client.DeleteSessionAsync(new DeleteSessionRequest {SessionId = sessionId});
+            var response = await _client.DeleteSessionAsync(new DeleteSessionRequest {SessionId = session.Id});
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
         }
 
@@ -334,31 +271,12 @@ namespace BoxViewClient.Tests
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     var content = await response.Content.ReadAsStringAsync();
-                    foreach (var entry in JsonConvert.DeserializeAnonymousType(
-                        content,
-                        new
-                        {
-                            document_collection = new
-                            {
-                                total_count = 0,
-                                entries = new[]
-                                {
-                                    new
-                                    {
-                                        type = "",
-                                        id = "",
-                                        status = "",
-                                        name = "",
-                                        created_at = ""
-                                    }
-                                }
-                            }
-                        }).document_collection.entries)
+                    foreach (var entry in JsonConvert.DeserializeObject<GetDocumentsResponse>(content).DocumentCollection.Entries)
                     {
                         Guid _;
-                        if (Guid.TryParse(entry.name, out _))
+                        if (Guid.TryParse(entry.Name, out _))
                         {
-                            await _client.DeleteDocumentAsync(new DeleteDocumentRequest { DocumentId = entry.id });
+                            await _client.DeleteDocumentAsync(new DeleteDocumentRequest { DocumentId = entry.Id });
                         }
                     }
                 }
